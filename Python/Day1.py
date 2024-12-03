@@ -36,7 +36,7 @@ def similarity(left_list, right_list):
 
 
 def main():
-    left_list, right_list = input_to_lists("input.txt")
+    left_list, right_list = input_to_lists("Day1.txt")
     left_list, right_list = sort_lists(left_list, right_list)
     print("Distance: ", distance(left_list, right_list))
     print("Similarity: ", similarity(left_list, right_list))
