@@ -15,31 +15,44 @@ def make_reports(data):
     return reports
 
 
-def analyse_safety(reports):
+def sperate_reports(reports):
     reports_safety = []
     for report in reports:
-        direction = ""
-        safety = []
-        for index in range(1, len(report)):
-            diff = report[index] - report[index - 1]
-            if index == 1:
-                if diff < 0:
-                    direction = "descending"
-                else:
-                    direction = "ascending"
-            if diff <= 0:
-                new_direction = "descending"
-            else:
-                new_direction = "ascending"
-            if direction != new_direction:
-                safety.append("unsafe")
-            diff = abs(diff)
-            if diff > 0 and diff < 4:
-                safety.append("safe")
-            else:
-                safety.append("unsafe")
-        reports_safety.append(safety)
+        report_safty = analyse_safety(report)
+        if "unsafe" in report_safty:
+            reports_safety.append(dampener_module(report))
+        else:
+            reports_safety.append(analyse_safety(report))
     return reports_safety
+
+
+def analyse_safety(report):
+    direction = ""
+    safety = []
+    for index in range(1, len(report)):
+        diff = report[index] - report[index - 1]
+        if index == 1:
+            direction = "descending" if diff < 0 else "ascending"
+        new_direction = "descending" if diff <= 0 else "ascending"
+        if direction != new_direction:
+            safety.append("unsafe")
+            break
+        abs_diff = abs(diff)
+        if 0 < abs_diff < 4:
+            safety.append("safe")
+        else:
+            safety.append("unsafe")
+    return safety
+
+
+def dampener_module(report):
+    for index in range(len(report)):
+        attempt = report.copy()
+        attempt.pop(index)
+        attempt_safety = analyse_safety(attempt)
+        if "unsafe" not in attempt_safety:
+            return attempt_safety
+    return analyse_safety(report)
 
 
 def safety_count(safety_reports):
@@ -53,7 +66,7 @@ def safety_count(safety_reports):
 def main():
     unsafe_data = input_to_list("Day2.txt")
     reports = make_reports(unsafe_data)
-    safety_reports = analyse_safety(reports)
+    safety_reports = sperate_reports(reports)
     print(safety_count(safety_reports))
 
 
